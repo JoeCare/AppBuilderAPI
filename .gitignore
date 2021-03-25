@@ -8,3 +8,4 @@ venv
 *.sublime*
 /app/static/
 /app/templates/
+/.env

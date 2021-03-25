@@ -71,12 +71,18 @@ class Dish(Model, AuditMixin):
 	# wyglada na to ze aktualizaja tej zmiany przez API sie
 	# wykonuje, ale przez stronke trzeba recznie bo 302Err
 	# nieprawidlowy format
-	changed_on = Column(
-		TIMESTAMP,
-		default=datetime.datetime.now,
-		onupdate=datetime.datetime.now,
-		nullable=False,
-		)
+	# changed_on = Column(
+	# 	String,
+	# 	default=datetime.datetime.now,
+	# 	onupdate=datetime.datetime.now,
+	# 	nullable=False,
+	# 	)
+	# created_on = Column(
+	# 	String,
+	# 	default=datetime.datetime.now,
+	# 	onupdate=datetime.datetime.now,
+	# 	nullable=False,
+	# 	)
 
 	def __repr__(self):
 		return self.name
