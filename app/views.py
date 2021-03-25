@@ -29,24 +29,83 @@ from . import appbuilder, db, models
 #     list_columns = ['active', 'username', 'first_name', 'last_name']
 
 
-class PublicMenuApi(BaseModelApi):
+class PublicMenuApi(ModelRestApi):
     resource_name = 'menu_cards'
     base_permissions = ['can_get', 'can_get_list']
+    allow_browser_login = True
     datamodel = SQLAInterface(models.MenuCard)
 
+    @safe
+    @expose("/")
+    def get_list(self, **kwargs):
+        """Get item from Model
+        ---
+        get:
+          description: >-
+            Get an item model
+          responses:
+            200:
+              description: Item from Model
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      id:
+                        description: The item id
+                        type: string
+                      result:
+                        $ref: '#/components/schemas/{
+                        {self.__class__.__name__}}.get_list'
+        """
+        return self.get_list()
+
+    # list_model_schema =
+    # @expose('/')
+    # def list_all(self):
+    #     """List all available Menu Cards
+    #     ---
+    #     get:
+    #       responses:
+    #         200:
+    #           description: Menu Cards
+    #           content:
+    #             application/json:
+    #               schema:
+    #                 properties:
+    #                   dishes: $ref: #/components/schemas/MenuCardApi.get_list
+    #                   type: array
+    #               type: object
+    #     """
+    #     return self.response(200)
+
+    """
+        raise ScannerError(None, None,
+        yaml.scanner.ScannerError: mapping values are not allowed here
+    """
+    # openapi_spec_methods = {
+    #     "menu_cards": {
+    #         "get": {
+    #             "description": "List all",
+    #             "content": {
+    #                 "application/json": {
+    #                     "schema": {
+    #                         "$ref":
+    #                             "#/components/schemas/MenuCardApi.get_list"
+    #                         }
+    #                     }
+    #                 }
+    #             }
+    #         }
+    #     }
+    label_columns = {'created_by.username': 'Created by',
+                     'changed_by.username': 'Changed by'}
     list_columns = ['name', 'description', 'dishes',
                     'created_by.username', 'created_on',
                     'changed_by.username', 'changed_on']
     show_columns = ['name', 'description', 'dishes',
                     'created_by.username', 'created_on',
                     'changed_by.username', 'changed_on']
-    # openapi_spec_methods = {
-    #     "menu_cards": {
-    #         "get": {
-    #             "description": "Override description",
-    #             }
-    #         }
-    #     }
 
 
 class MenuCardApi(ModelRestApi):
@@ -89,6 +148,7 @@ class DishesApi(ModelRestApi):
 
 appbuilder.add_api(MenuCardApi)
 appbuilder.add_api(DishesApi)
+appbuilder.add_api(PublicMenuApi)
 # appbuilder.security_cleanup()
 
 
