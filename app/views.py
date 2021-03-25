@@ -1,72 +1,95 @@
 from flask import render_template
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, ModelRestApi
-from flask_appbuilder.api import expose, rison, safe
+from flask_appbuilder.api import (expose, rison, safe, schemas, BaseApi,
+                                  BaseModelApi)
 # from flask_appbuilder.security.api import SecurityApi
+from flask_appbuilder.security.sqla.models import User
 from flask_appbuilder.widgets import ListThumbnail
 
 from . import appbuilder, db, models
+
+
+# class UserApiSchema(schemas.BaseModelSchema):
+#     pass
+
+# class UserApi(ModelRestApi):
+#     resource_name = 'users'
+#     datamodel = SQLAInterface(User)
+#     add_exclude_columns = ['created_by', 'created_on', 'changed_by',
+#                            'changed_on']
+#     edit_exclude_columns = ['created_by', 'created_on', 'changed_by',
+#                             'changed_on']
+#     show_exclude_columns = ['created_by', 'created_on', 'changed_by',
+#                              'password', 'first_name', 'last_name',
+#                              'login_count']
+#     list_exclude_columns = ['created_by', 'created_on', 'changed_by',
+#                              'password', 'first_name', 'last_name',
+#                              'login_count', 'fail_login_count']
+#     list_columns = ['active', 'username', 'first_name', 'last_name']
+
+
+class PublicMenuApi(BaseModelApi):
+    resource_name = 'menu_cards'
+    base_permissions = ['can_get', 'can_get_list']
+    datamodel = SQLAInterface(models.MenuCard)
+
+    list_columns = ['name', 'description', 'dishes',
+                    'created_by.username', 'created_on',
+                    'changed_by.username', 'changed_on']
+    show_columns = ['name', 'description', 'dishes',
+                    'created_by.username', 'created_on',
+                    'changed_by.username', 'changed_on']
+    # openapi_spec_methods = {
+    #     "menu_cards": {
+    #         "get": {
+    #             "description": "Override description",
+    #             }
+    #         }
+    #     }
 
 
 class MenuCardApi(ModelRestApi):
     resource_name = 'menus'
     datamodel = SQLAInterface(models.MenuCard)
     allow_browser_login = True
+    label_columns = {'created_by.username': 'Created by',
+                     'changed_by.username': 'Changed by'}
+    # show_exclude_columns = ['created_by.password',
+    #                         'changed_by.password'] doesn't work
+    add_exclude_columns = ['created_by', 'created_on', 'changed_by',
+                           'changed_on']
+    edit_exclude_columns = ['created_by', 'created_on', 'changed_by',
+                            'changed_on']
+    list_columns = ['name', 'description',  'dishes',
+                    'created_by.username', 'created_on',
+                    'changed_by.username', 'changed_on']
 
 
 class DishesApi(ModelRestApi):
     resource_name = 'dishes'
     datamodel = SQLAInterface(models.Dish)
     allow_browser_login = True
-    base_order = ('changed_on', 'desc')
-    label_columns = {"changed_on": "last modified"}
+    # base_order = ('changed_on', 'desc')
+    label_columns = {'created_by.username': 'Created by',
+                     'changed_by.username': 'Changed by',
+                     'menu_card.name': 'Menu'}
+    show_exclude_columns = ['created_by.password',
+                            'changed_by.password',
+                            'changed_on']
+    add_exclude_columns = ['created_by', 'created_on', 'changed_by',
+                           'changed_on']
+    edit_exclude_columns = ['created_by', 'created_on', 'changed_by',
+                            'changed_on']
+    list_columns = ['name', 'preparation_time', 'price',
+                    'vegetarian', 'description', 'menu_card.name',
+                    'created_by.username', 'created_on',
+                    'changed_by.username', 'changed_on']
 
 
 appbuilder.add_api(MenuCardApi)
 appbuilder.add_api(DishesApi)
-
-
-class MenuCardView(ModelView):
-    datamodel = SQLAInterface(models.MenuCard)
-    edit_exclude_columns = ['first_created']
-    # list_columns = [
-    #     'name', 'description', 'first_created', 'last_modified',
-    #     'employee_number']
-
-# ------- when opening Listing Menu... for later.
-# c:\\.virtualenvs\e_menu_app-kp-blivv\lib\site-packag
-# es\flask_appbuilder\fields.py:181: UserWarning: allow_blank=True does no
-# t do anything for QuerySelectMultipleField.
-#   warnings.warn(
-# 2021-03-20 17:35:10,112:INFO:werkzeug:127.0.0.1 - - [20/Mar/2021 17:35:1
-# 0] "←[37mGET /menucardview/list/ HTTP/1.1←[0m" 200 -
-
-
-class DishesView(ModelView):
-    datamodel = SQLAInterface(models.Dish)
-    list_columns = [
-        'name', 'description', 'first_created', 'last_modified',
-        'menu_card', 'preparation_time', 'price', 'vegetarian',
-        'photo_img_thumbnail', 'name']
-    show_columns = ['photo_img', 'name']
-    edit_exclude_columns = ['first_created']
-    list_widget = ListThumbnail
-
-    label_columns = {
-        'photo': 'Photo', 'photo_img': 'Photo',
-        'photo_img_thumbnail': 'Photo'
-        }
-
-
-appbuilder.add_view(
-    MenuCardView, "Menu Cards",
-    icon="fa-folder-open-o", category="Menus",
-    category_icon='fa-envelope')
-appbuilder.add_view(
-    DishesView, "Dishes",
-    icon="fa-folder-open-o", category="Dishes",
-    category_icon='fa-envelope'
-    )
+# appbuilder.security_cleanup()
 
 
 db.create_all()
