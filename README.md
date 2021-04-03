@@ -7,4 +7,3 @@ Double-layered API CRUD with potential to extend
 --------
 Exploring great potential of little AppBuilder.
 There is a lot to explore beside the whole documentation and documentations of dependent modules.
-Community using this extension also doesn't seem to be overhelming through internet.
